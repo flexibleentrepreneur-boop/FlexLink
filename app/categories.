@@ -1,0 +1,189 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { Search, MapPin, Star } from "lucide-react";
+import { useState } from "react";
+
+export default function Categories() {
+  const { user, isAuthenticated } = useAuth();
+  const { data: categories } = trpc.categories.list.useQuery();
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: listings } = trpc.listings.byCategory.useQuery(
+    { categoryId: selectedCategory || 1 },
+    { enabled: !!selectedCategory }
+  );
+
+  const categoryNames: Record<number, string> = {
+    1: "Real Estate",
+    2: "Products & Assets",
+    3: "Beauty",
+    4: "Wellness",
+    5: "Travel",
+  };
+
+  const categoryDescriptions: Record<number, string> = {
+    1: "Buy, sell, rent, or lease houses, land, and commercial properties",
+    2: "Discover clothes, home interiors, gadgets, tools, and branded items",
+    3: "Beauty products, services, and expert beautician consultations",
+    4: "Mental health support, wellness coaching, and stress relief",
+    5: "Travel planning, relocations, study abroad, and job opportunities",
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-40 border-b border-purple-900/30 bg-slate-950/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-900 rounded-lg flex items-center justify-center font-bold text-lg">
+              F
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent">
+              FlexHub
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" className="text-purple-400 hover:text-purple-300">
+              ← Back
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Header */}
+      <section className="container mx-auto px-4 py-12">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Browse All <span className="bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent">Categories</span>
+        </h1>
+        <p className="text-slate-300 text-lg">Find exactly what you need across our five service categories</p>
+      </section>
+
+      {/* Category Selection */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((num) => (
+            <button
+              key={num}
+              onClick={() => setSelectedCategory(num)}
+              className={`p-4 rounded-lg border-2 transition-all ${
+                selectedCategory === num
+                  ? "border-purple-500 bg-purple-900/30"
+                  : "border-purple-900/30 bg-slate-800 hover:border-purple-500"
+              }`}
+            >
+              <div className="text-2xl font-bold text-purple-400 mb-2">{num}</div>
+              <div className="font-semibold text-white text-sm">{categoryNames[num]}</div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Category Details */}
+      {selectedCategory && (
+        <section className="container mx-auto px-4 py-12">
+          <Card className="border-purple-500/50 bg-gradient-to-r from-purple-900/30 to-slate-900 mb-8">
+            <CardHeader>
+              <CardTitle className="text-3xl text-white">{categoryNames[selectedCategory]}</CardTitle>
+              <CardDescription className="text-slate-300 text-lg">
+                {categoryDescriptions[selectedCategory]}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button className="bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950">
+                  Browse Listings
+                </Button>
+                <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-900/20">
+                  Post a Request
+                </Button>
+                <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-900/20">
+                  Become a Provider
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Search and Filters */}
+          <div className="mb-8">
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-slate-800 border-purple-900/30 text-white placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* Listings Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings?.slice(0, 9).map((listing) => (
+                <Card key={listing.id} className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900 hover:border-purple-500 transition-all group cursor-pointer">
+                  {listing.images && JSON.parse(listing.images as string)?.[0] && (
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-900 rounded-t-lg flex items-center justify-center overflow-hidden">
+                      <img
+                        src={JSON.parse(listing.images as string)[0]}
+                        alt={listing.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                      />
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-white text-lg line-clamp-2">{listing.title}</CardTitle>
+                    <CardDescription className="text-slate-400">{listing.description?.substring(0, 80)}...</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {listing.price && (
+                        <div className="text-2xl font-bold text-purple-400">
+                          ₦{Number(listing.price).toLocaleString()}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-sm">{listing.location || "Nigeria"}</span>
+                      </div>
+                      {listing.rating && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < Math.round(Number(listing.rating))
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-slate-600"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-slate-400">({listing.reviewCount} reviews)</span>
+                        </div>
+                      )}
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950">
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {!listings || listings.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-slate-400 text-lg">No listings found in this category yet.</p>
+                <Button className="mt-4 bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950">
+                  Be the First Provider
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
