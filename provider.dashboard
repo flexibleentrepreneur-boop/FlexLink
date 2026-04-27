@@ -1,0 +1,315 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { BarChart3, TrendingUp, Users, DollarSign, Plus, Edit2, Trash2, Eye, Star } from "lucide-react";
+
+const mockListings = [
+  {
+    id: 1,
+    title: "3-Bedroom House in Enugu",
+    category: "Real Estate",
+    price: "₦5,000,000",
+    views: 1250,
+    inquiries: 45,
+    rating: 4.8,
+    reviews: 12,
+    status: "active",
+  },
+  {
+    id: 2,
+    title: "Premium Furniture Set",
+    category: "Products",
+    price: "₦150,000",
+    views: 890,
+    inquiries: 28,
+    rating: 4.5,
+    reviews: 8,
+    status: "active",
+  },
+  {
+    id: 3,
+    title: "Hair Styling Services",
+    category: "Beauty",
+    price: "₦5,000",
+    views: 2100,
+    inquiries: 156,
+    rating: 4.9,
+    reviews: 34,
+    status: "active",
+  },
+];
+
+const mockBookings = [
+  {
+    id: 1,
+    listingTitle: "3-Bedroom House in Enugu",
+    buyer: "Chioma Okafor",
+    amount: "₦5,000,000",
+    status: "completed",
+    date: "2026-04-20",
+  },
+  {
+    id: 2,
+    listingTitle: "Hair Styling Services",
+    buyer: "Amara Nwosu",
+    amount: "₦5,000",
+    status: "pending",
+    date: "2026-04-27",
+  },
+  {
+    id: 3,
+    listingTitle: "Premium Furniture Set",
+    buyer: "Emeka Eze",
+    amount: "₦150,000",
+    status: "completed",
+    date: "2026-04-25",
+  },
+];
+
+export default function ProviderDashboard() {
+  const { user, isAuthenticated } = useAuth();
+  const [showNewListingForm, setShowNewListingForm] = useState(false);
+  const [newListing, setNewListing] = useState({ title: "", category: "", price: "" });
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-center">
+        <Card className="border-purple-500/50 bg-slate-800 w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Sign In Required</CardTitle>
+            <CardDescription>Please sign in as a provider to access this dashboard</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  const totalEarnings = 5_150_000;
+  const totalListings = mockListings.length;
+  const totalBookings = mockBookings.length;
+  const totalViews = mockListings.reduce((sum, l) => sum + l.views, 0);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-40 border-b border-purple-900/30 bg-slate-950/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-900 rounded-lg flex items-center justify-center font-bold text-lg">
+              F
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent">
+              Provider Dashboard
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" className="text-slate-400 hover:text-purple-300">
+              Profile
+            </Button>
+            <Button variant="ghost" className="text-slate-400 hover:text-purple-300">
+              Settings
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">
+            Welcome, <span className="bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent">{user?.name}</span>
+          </h1>
+          <p className="text-slate-300">Manage your listings, bookings, and earnings</p>
+        </div>
+
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-400">Total Earnings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-400">₦{totalEarnings.toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-2">From {totalBookings} completed bookings</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-400">Active Listings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-400">{totalListings}</div>
+              <p className="text-xs text-slate-500 mt-2">All verified and active</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-400">Total Views</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-400">{totalViews.toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-2">Across all listings</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-400">Rating</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-400">4.7★</div>
+              <p className="text-xs text-slate-500 mt-2">From 54 reviews</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Listings Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Your Listings</h2>
+            <Button
+              onClick={() => setShowNewListingForm(!showNewListingForm)}
+              className="bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Listing
+            </Button>
+          </div>
+
+          {/* New Listing Form */}
+          {showNewListingForm && (
+            <Card className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900 mb-6">
+              <CardHeader>
+                <CardTitle>Create New Listing</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input
+                  placeholder="Listing Title"
+                  value={newListing.title}
+                  onChange={(e) => setNewListing({ ...newListing, title: e.target.value })}
+                  className="bg-slate-700 border-purple-900/30 text-white placeholder:text-slate-500"
+                />
+                <Input
+                  placeholder="Category (Real Estate, Products, Beauty, etc.)"
+                  value={newListing.category}
+                  onChange={(e) => setNewListing({ ...newListing, category: e.target.value })}
+                  className="bg-slate-700 border-purple-900/30 text-white placeholder:text-slate-500"
+                />
+                <Input
+                  placeholder="Price (₦)"
+                  value={newListing.price}
+                  onChange={(e) => setNewListing({ ...newListing, price: e.target.value })}
+                  className="bg-slate-700 border-purple-900/30 text-white placeholder:text-slate-500"
+                />
+                <div className="flex gap-3">
+                  <Button className="flex-1 bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950">
+                    Create Listing
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowNewListingForm(false)} className="flex-1 border-purple-500 text-purple-400">
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Listings Table */}
+          <div className="space-y-4">
+            {mockListings.map((listing) => (
+              <Card key={listing.id} className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-1">{listing.title}</h3>
+                      <p className="text-sm text-slate-400">{listing.category}</p>
+                    </div>
+                    <div className="text-right mr-6">
+                      <div className="text-2xl font-bold text-purple-400">{listing.price}</div>
+                      <div className="flex items-center gap-1 text-yellow-400 text-sm">
+                        <Star className="w-4 h-4 fill-yellow-400" />
+                        {listing.rating} ({listing.reviews} reviews)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4 mb-4 pb-4 border-b border-purple-900/30">
+                    <div>
+                      <p className="text-xs text-slate-400">Views</p>
+                      <p className="text-lg font-semibold text-purple-300 flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        {listing.views}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400">Inquiries</p>
+                      <p className="text-lg font-semibold text-purple-300">{listing.inquiries}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400">Status</p>
+                      <p className="text-lg font-semibold text-green-400 capitalize">{listing.status}</p>
+                    </div>
+                    <div></div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-900/20">
+                      <Edit2 className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-900/20">
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" className="border-red-500 text-red-400 hover:bg-red-900/20">
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Bookings */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Recent Bookings</h2>
+          <div className="space-y-4">
+            {mockBookings.map((booking) => (
+              <Card key={booking.id} className="border-purple-900/50 bg-gradient-to-br from-slate-800 to-slate-900">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-1">{booking.listingTitle}</h3>
+                      <p className="text-sm text-slate-400">Buyer: {booking.buyer}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-purple-400 mb-1">{booking.amount}</div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            booking.status === "completed"
+                              ? "bg-green-900/30 text-green-300"
+                              : "bg-yellow-900/30 text-yellow-300"
+                          }`}
+                        >
+                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
+                        <span className="text-sm text-slate-400">{booking.date}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
